@@ -75,19 +75,14 @@ impl<N: Hash+Eq+Clone> Graph<N> for SparseGraph<N> {
         }
     }
 
-    // fn neighbors(&self, node:N)->Iterator<N>{
-    //     let &SparseGraph(ref map) = self;
-    //     let neighbors = match map.find(&node){
-    //         Some(entry) => { entry.keys(),
-    //             // let mut res = Vec::new();
-    //             // for k in entry.keys(){
-    //             //     res.push(k.clone());
-    //             // }
-    //             // res
-    //         None        => None,
-    //     };
-    //     neighbors
-    // }
+    fn neighbors(&self, node:N)->Vec<N>{
+        let &SparseGraph(ref map) = self;
+        let neighbors:Vec<N> = match map.find(&node){
+            Some(entry) => entry.keys().map(|k|{k.clone()}).collect(),
+            None        => Vec::new(),
+        };
+        neighbors
+    }
 }
 
 #[test]
@@ -108,6 +103,7 @@ fn new_graph_with_str_nodes(){
     assert!(gp.contains_edge("A", "B"));
     assert!(gp.contains_edge("B", "A")); //Simple undirected graph
     assert!(!gp.contains_edge("A", "D"));
+    assert_eq!(gp.neighbors("A"), vec!["B","C"]);
 
     let mut gp_mut = gp;
     assert!(!gp_mut.contains_node("E"));

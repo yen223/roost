@@ -6,7 +6,7 @@ mod roost{
     pub trait Graph<N>{
         fn contains_node(&self, node: N) -> bool;
         fn contains_edge(&self, from: N, to: N) -> bool;
-        // fn neighbors(&self, node: N) -> Iterator<N>;
+        fn neighbors(&self, node: N) -> Vec<N>;
     }
 
     #[deriving(PartialEq, Clone)]

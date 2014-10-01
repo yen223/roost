@@ -75,19 +75,19 @@ impl<N: Hash+Eq+Clone> Graph<N> for SparseGraph<N> {
         }
     }
 
-    fn neighbors(&self, node:N)->Iterator<N>{
-        let &SparseGraph(ref map) = self;
-        let neighbors = match map.find(&node){
-            Some(entry) => entry.keys(),
-                // let mut res = Vec::new();
-                // for k in entry.keys(){
-                //     res.push(k.clone());
-                // }
-                // res
-            None        => None,
-        };
-        neighbors
-    }
+    // fn neighbors(&self, node:N)->Iterator<N>{
+    //     let &SparseGraph(ref map) = self;
+    //     let neighbors = match map.find(&node){
+    //         Some(entry) => { entry.keys(),
+    //             // let mut res = Vec::new();
+    //             // for k in entry.keys(){
+    //             //     res.push(k.clone());
+    //             // }
+    //             // res
+    //         None        => None,
+    //     };
+    //     neighbors
+    // }
 }
 
 #[test]

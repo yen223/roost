@@ -1,0 +1,5 @@
+[package]
+
+name = "roost"
+version = "0.0.1"
+authors = ["Wei Yen <lee@weiyen.me>"]

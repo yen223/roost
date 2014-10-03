@@ -4,50 +4,52 @@ use std::hash::Hash;
 use std::vec::Vec;
 use roost::{Graph, Edge};
 
-pub struct SparseGraph<N: Hash+Eq+Clone>( HashMap<N, HashMap<N, Edge<N>>>);
-impl<N: Hash+Eq+Clone> SparseGraph<N>{
+pub struct SparseGraph<N: Clone>{
+    nodes: Vec<N>,
+    edges: HashMap<(uint,uint),Edge<N>>,
+    adj_list: Vec<Vec<uint>>,
+}
+
+impl<N: Eq+Clone> SparseGraph<N>{
     fn new()->SparseGraph<N>{
-        let map = HashMap::new();
-        SparseGraph(map)
+        let n:Vec<N> = Vec::new();
+        let e:HashMap<(uint, uint), Edge<N>> = HashMap::new();
+        let adjl:Vec<Vec<uint>> = Vec::new();
+        SparseGraph{nodes: n, edges: e, adj_list: adjl}
     }
 
     fn add_node(&mut self, n: N){
-        let &SparseGraph(ref mut map) = self;
-        match map.entry(n) {
-            Occupied(_) => {},
-            Vacant(entry) => {
-                let hs: HashMap<N, Edge<N>> = HashMap::new();
-                entry.set(hs);
-            }
-        };
+        self.nodes.push(n);
+        self.adj_list.push(Vec::new());
     }
 
-    fn add_edge(&mut self, e: Edge<N>){
-        let from = e.from.clone();
-        let to = e.to.clone();
-        let &SparseGraph(ref mut map) = self;
-        match map.entry(from.clone()) {
-            Occupied(entry) => {
-                let hs = entry.into_mut();
-                hs.insert(to.clone(), e.clone());
+    fn get_node_index(&self, n: &N) -> Option<uint> {
+        let nds = self.nodes.as_slice();
+        for (idx, x) in nds.iter().enumerate(){
+            if *x == *n {return Some(idx);}
+        }
+        return None;
+    }
+
+    fn add_edge(&mut self, edge: Edge<N>){
+        let fi = self.get_node_index(&(edge.from));
+        let from:uint = match fi{
+            Some(x) => x,
+            None    => {
+                self.add_node(edge.from.clone());
+                self.nodes.len()-1
             },
-            Vacant(entry) => {
-                let mut hs = HashMap::new();
-                hs.insert(to.clone(), e.clone());
-                entry.set(hs);
+        };
+        let ti = self.get_node_index(&(edge.to));
+        let to:uint = match ti{
+            Some(x) => x,
+            None    => {
+                self.add_node(edge.to.clone());
+                self.nodes.len()-1
             }
         };
-        match map.entry(to) {
-            Occupied(entry) => {
-                let hs = entry.into_mut();
-                hs.insert(from, e.clone());
-            },
-            Vacant(entry) => {
-                let mut hs = HashMap::new();
-                hs.insert(from, e.clone());
-                entry.set(hs);
-            }
-        };
+        self.edges.insert((from, to), edge);
+        self.adj_list.get_mut(from).push(to);
     }
 }
 
@@ -63,22 +65,32 @@ impl<N: Hash+Eq+Clone> FromIterator<Edge<N>> for SparseGraph<N>{
 
 impl<N: Hash+Eq+Clone> Graph<N> for SparseGraph<N> {
     fn contains_node(&self, node: N) -> bool{
-        let &SparseGraph(ref map) = self;
-        map.contains_key(&node)
-    }
-
-    fn contains_edge(&self, from: N, to: N) -> bool{
-        let &SparseGraph(ref map) = self;
-        match map.find(&from){
-            Some(entry) => entry.contains_key(&to),
-            None => false
+        match self.get_node_index(&node){
+            Some(_) => true,
+            None    => false,
         }
     }
 
+    fn contains_edge(&self, from: N, to: N) -> bool{
+        let fi = match self.get_node_index(&from){
+            Some(x)     => x,
+            None        => return false,
+        };
+
+        let ti = match self.get_node_index(&to){
+            Some(x)     => x,
+            None        => return false,
+        };
+        !self.edges.find(&(fi, ti)).is_none()
+    }
+
     fn neighbors(&self, node:N)->Vec<N>{
-        let &SparseGraph(ref map) = self;
-        let neighbors:Vec<N> = match map.find(&node){
-            Some(entry) => entry.keys().map(|k|{k.clone()}).collect(),
+        let idx = self.get_node_index(&node);
+        let neighbors:Vec<N> = match idx{
+            Some(entry) => self.adj_list.get(entry)
+                                   .iter()
+                                   .map(|&x|self.nodes.get(x).clone())
+                                   .collect(),
             None        => Vec::new(),
         };
         neighbors
@@ -101,7 +113,6 @@ fn new_graph_with_str_nodes(){
     assert!(!gp.contains_node("E"));
 
     assert!(gp.contains_edge("A", "B"));
-    assert!(gp.contains_edge("B", "A")); //Simple undirected graph
     assert!(!gp.contains_edge("A", "D"));
     let a_neighbors = gp.neighbors("A");
     println!("Neighbors: {}", a_neighbors);

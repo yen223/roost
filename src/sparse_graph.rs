@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::collections::hashmap::{Occupied, Vacant};
 use std::hash::Hash;
 use std::vec::Vec;
 use roost::{Graph, Edge};
 
-struct SparseGraph<N: Hash+Eq+Clone>( HashMap<N, HashMap<N, Edge<N>>>);
+pub struct SparseGraph<N: Hash+Eq+Clone>( HashMap<N, HashMap<N, Edge<N>>>);
 impl<N: Hash+Eq+Clone> SparseGraph<N>{
     fn new()->SparseGraph<N>{
         let map = HashMap::new();
@@ -103,7 +103,11 @@ fn new_graph_with_str_nodes(){
     assert!(gp.contains_edge("A", "B"));
     assert!(gp.contains_edge("B", "A")); //Simple undirected graph
     assert!(!gp.contains_edge("A", "D"));
-    assert_eq!(gp.neighbors("A"), vec!["B","C"]);
+    let a_neighbors = gp.neighbors("A");
+    println!("Neighbors: {}", a_neighbors);
+    assert!(a_neighbors.contains(&"B"));
+    assert!(a_neighbors.contains(&"C"));
+    assert!(!a_neighbors.contains(&"D"));
 
     let mut gp_mut = gp;
     assert!(!gp_mut.contains_node("E"));

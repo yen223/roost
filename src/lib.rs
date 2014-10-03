@@ -1,8 +1,12 @@
 mod sparse_graph;
+mod search;
 
 mod roost{
+    pub use sparse_graph::SparseGraph;
+    pub use search::depth_first_visit;
     use std::hash::Hash;
     use std::hash::sip::SipState;
+
     pub trait Graph<N>{
         fn contains_node(&self, node: N) -> bool;
         fn contains_edge(&self, from: N, to: N) -> bool;

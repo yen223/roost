@@ -11,7 +11,7 @@ pub struct SparseGraph<V: Clone, E: Clone>{
 }
 
 impl<V: Eq+Clone, E: Clone> SparseGraph<V, E>{
-    fn new()->SparseGraph<V, E>{
+    pub fn new()->SparseGraph<V, E>{
         let n:Vec<V> = Vec::new();
         let e:HashMap<EdgeIndex, E> = HashMap::new();
         let adjl:Vec<Vec<NodeIndex>> = Vec::new();
@@ -23,7 +23,7 @@ impl<V: Eq+Clone, E: Clone> SparseGraph<V, E>{
         self.adj_list.push(Vec::new());
     }
 
-    fn add_edge(&mut self, from: V, to: V, edge: E){
+    pub fn add_edge(&mut self, from: V, to: V, edge: E){
         let fi:NodeIndex = match self.index_of(&from){
             Some(x) => x,
             None    => {

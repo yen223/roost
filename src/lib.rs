@@ -1,5 +1,5 @@
 mod sparse_graph;
-// mod search;
+mod search;
 
 mod roost{
     pub use sparse_graph::SparseGraph;

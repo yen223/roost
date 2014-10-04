@@ -1,38 +1,19 @@
 mod sparse_graph;
-mod search;
+// mod search;
 
 mod roost{
     pub use sparse_graph::SparseGraph;
-    pub use search::depth_first_visit;
-    use std::hash::Hash;
-    use std::hash::sip::SipState;
+    // pub use search::depth_first_visit;
 
-    pub trait Graph<N>{
-        fn contains_node(&self, node: N) -> bool;
-        fn contains_edge(&self, from: N, to: N) -> bool;
-        fn neighbors(&self, node: N) -> Vec<N>;
+    pub type NodeIndex = uint;
+    pub type EdgeIndex = (NodeIndex, NodeIndex);
+    pub trait Graph<V, E>{
+        fn index_of(&self, node: &V) -> Option<NodeIndex>;
+        fn node_of(&self, idx: NodeIndex) -> Option<V>;
+        fn neighbors(&self, idx: NodeIndex) -> Vec<NodeIndex>;
+        fn in_edges(&self, idx: NodeIndex) -> Vec<EdgeIndex>;
+        fn out_edges(&self, idx: NodeIndex) -> Vec<EdgeIndex>;
+        fn contains_node(&self, node: &V) -> bool;
+        fn contains_edge(&self, from: &V, to: &V) -> bool;
     }
-
-    #[deriving(PartialEq, Clone)]
-    pub struct Edge<N>{
-        pub from: N,
-        pub to: N,
-        pub weight: f64,
-    }
-    
-    // pub type Neighbors<N> = 
-    //     idx: int,
-    //     nodes: Vec<N>,
-    // }
-
-    impl<N:Hash> Hash for Edge<N> {
-        fn hash(&self, state: &mut SipState) {
-            self.from.hash(state);
-            self.to.hash(state);
-        }
-    }
-
-    // impl<N> Iterator<N> for Neighbors<N> {
-    //     fn next(&mut self) -> Option<N> {
-            
 }

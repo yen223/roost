@@ -1,6 +1,4 @@
-use std::collections::{HashMap, HashSet};
-use std::collections::hashmap::{Occupied, Vacant};
-// use std::hash::Hash;
+use std::collections::HashMap;
 use std::vec::Vec;
 use roost::{Graph, NodeIndex, EdgeIndex};
 
@@ -112,6 +110,15 @@ impl<V: Eq+Clone, E: Clone> Graph<V, E> for SparseGraph<V, E> {
             Vec::new()
         }
     }
+
+    fn nodes(&self) -> Vec<NodeIndex>{
+        let res:Vec<NodeIndex> = range(0u, self.nodes.len()).collect();
+        res
+    }
+
+    fn get_edge(&self, from: NodeIndex, to: NodeIndex)->Option<E>{
+        self.edges.find_copy(&(from, to))
+    }
 }
 
 #[test]
@@ -140,7 +147,6 @@ fn graph_with_str_nodes(){
     let a_idx = gp.index_of(&"A").unwrap();
     let b_idx = gp.index_of(&"B").unwrap();
     let c_idx = gp.index_of(&"C").unwrap();
-    let d_idx = gp.index_of(&"D").unwrap();
     assert_eq!(gp.neighbors(a_idx), vec![b_idx, c_idx])
 
     let mut gp_mut = gp;
@@ -172,19 +178,19 @@ fn graph_with_int_nodes(){
 fn graph_with_struct_nodes(){
     #[deriving(Eq, PartialEq, Clone)]
     struct Point(int, int);
-    let pointA = Point( 1,3 );
-    let pointB = Point( 4,-1 );
-    let pointC = Point( 90,22 );
-    let pointD = Point( 3,3 );
-    let pointE = Point( 5,2 );
+    let point_a = Point( 1,3 );
+    let point_b = Point( 4,-1 );
+    let point_c = Point( 90,22 );
+    let point_d = Point( 3,3 );
+    let point_e = Point( 5,2 );
     let mut graph:SparseGraph<Point, int> = SparseGraph::new();
-    graph.add_edge(pointA, pointB, 3);
-    graph.add_edge(pointA, pointC, 1);
-    graph.add_edge(pointB, pointC, 2);
-    graph.add_edge(pointC, pointD, 6);
-    assert!(graph.contains_node(&pointA));
-    assert!(graph.contains_node(&pointB));
-    assert!(graph.contains_node(&pointC));
-    assert!(graph.contains_node(&pointD));
-    assert!(!graph.contains_node(&pointE));
+    graph.add_edge(point_a, point_b, 3);
+    graph.add_edge(point_a, point_c, 1);
+    graph.add_edge(point_b, point_c, 2);
+    graph.add_edge(point_c, point_d, 6);
+    assert!(graph.contains_node(&point_a));
+    assert!(graph.contains_node(&point_b));
+    assert!(graph.contains_node(&point_c));
+    assert!(graph.contains_node(&point_d));
+    assert!(!graph.contains_node(&point_e));
 }

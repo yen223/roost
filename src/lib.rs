@@ -15,5 +15,7 @@ mod roost{
         fn out_edges(&self, idx: NodeIndex) -> Vec<EdgeIndex>;
         fn contains_node(&self, node: &V) -> bool;
         fn contains_edge(&self, from: &V, to: &V) -> bool;
+        fn nodes(&self) -> Vec<NodeIndex>;
+        fn get_edge(&self, from: NodeIndex, to: NodeIndex) -> Option<E>;
     }
 }

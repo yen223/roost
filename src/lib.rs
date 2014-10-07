@@ -8,14 +8,19 @@ mod roost{
     pub type NodeIndex = uint;
     pub type EdgeIndex = (NodeIndex, NodeIndex);
     pub trait Graph<V, E>{
+        fn insert_node(&mut self, node: V) -> NodeIndex;
         fn index_of(&self, node: &V) -> Option<NodeIndex>;
         fn node_of(&self, idx: NodeIndex) -> Option<V>;
-        fn neighbors(&self, idx: NodeIndex) -> Vec<NodeIndex>;
+        fn out_nodes(&self, idx: NodeIndex) -> Vec<NodeIndex>;
         fn in_edges(&self, idx: NodeIndex) -> Vec<EdgeIndex>;
         fn out_edges(&self, idx: NodeIndex) -> Vec<EdgeIndex>;
         fn contains_node(&self, node: &V) -> bool;
         fn contains_edge(&self, from: &V, to: &V) -> bool;
         fn nodes(&self) -> Vec<NodeIndex>;
         fn get_edge(&self, from: NodeIndex, to: NodeIndex) -> Option<E>;
+    }
+
+    fn Node<V,E> (item: &V, graph:&Graph<V,E>)->Option<NodeIndex>{
+        graph.index_of(item)
     }
 }

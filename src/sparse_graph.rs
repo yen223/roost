@@ -52,6 +52,10 @@ impl<V: Eq+Clone, E: Clone> FromIterator<(V, V, E)> for SparseGraph<V, E>{
 }
 
 impl<V: Eq+Clone, E: Clone> Graph<V, E> for SparseGraph<V, E> {
+    fn insert_node(&mut self, node: V)->NodeIndex{
+        self.add_node(node);
+        return self.nodes.len()-1
+    }
     fn index_of(&self, n: &V) -> Option<NodeIndex> {
         let nds = self.nodes.as_slice();
         for (idx, x) in nds.iter().enumerate(){
@@ -79,7 +83,7 @@ impl<V: Eq+Clone, E: Clone> Graph<V, E> for SparseGraph<V, E> {
     }
 
     fn out_edges(&self, idx: NodeIndex) -> Vec<EdgeIndex>{
-        let nb = self.neighbors(idx);
+        let nb = self.out_nodes(idx);
         nb.iter().map(|&to|{(idx, to)}).collect()
     }
 
@@ -103,7 +107,7 @@ impl<V: Eq+Clone, E: Clone> Graph<V, E> for SparseGraph<V, E> {
         !self.edges.find(&(fi, ti)).is_none()
     }
 
-    fn neighbors(&self, idx: NodeIndex)->Vec<NodeIndex>{
+    fn out_nodes(&self, idx: NodeIndex)->Vec<NodeIndex>{
         if idx <= self.nodes.len()-1{
             self.adj_list[idx].to_vec()
         } else {
@@ -147,7 +151,7 @@ fn graph_with_str_nodes(){
     let a_idx = gp.index_of(&"A").unwrap();
     let b_idx = gp.index_of(&"B").unwrap();
     let c_idx = gp.index_of(&"C").unwrap();
-    assert_eq!(gp.neighbors(a_idx), vec![b_idx, c_idx])
+    assert_eq!(gp.out_nodes(a_idx), vec![b_idx, c_idx])
 
     let mut gp_mut = gp;
     assert!(!gp_mut.contains_node(&"E"));

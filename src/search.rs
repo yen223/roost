@@ -15,16 +15,16 @@ struct DepthFirstVisit<'a, V:Clone+Eq, E, G:'a + Graph<V, E>>{
     visited: HashSet<NodeIndex>,
 }
 
-#[deriving(PartialEq, Clone)]
-struct DistPair(NodeIndex, f64);
+#[deriving(Clone)]
+struct NodeDist(NodeIndex, f64);
 
-impl Ord for DistPair{
-    fn cmp(&self, other:&DistPair)->Ordering{
+impl Ord for NodeDist{
+    fn cmp(&self, other:&NodeDist)->Ordering{
         // The compare function is inverted,
         // so that the max-heap becomes a
         // min-heap.
-        let DistPair(_, dist_a) = *self;
-        let DistPair(_, dist_b) = *other;
+        let NodeDist(_, dist_a) = *self;
+        let NodeDist(_, dist_b) = *other;
         match dist_b.partial_cmp(&dist_a){
             Some(o) => o,
             None    => Equal,
@@ -32,13 +32,19 @@ impl Ord for DistPair{
     }
 }
 
-impl PartialOrd for DistPair{
-    fn partial_cmp(&self, other:&DistPair) -> Option<Ordering> {
+impl PartialOrd for NodeDist{
+    fn partial_cmp(&self, other:&NodeDist) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
-
-impl Eq for DistPair{}
+impl PartialEq for NodeDist{
+    fn eq(&self, other:&NodeDist) -> bool{
+        let NodeDist(_, dist_a) = *self;
+        let NodeDist(_, dist_b) = *other;
+        dist_a.eq(&dist_b)
+    }
+}
+impl Eq for NodeDist{}
 
 pub trait DistanceEdge<N:Num+ToPrimitive>:Clone {
     fn distance(&self) -> N;
@@ -77,12 +83,12 @@ pub trait PathSearchable<N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>>: Sea
         let node_len = self.nodes().len();
         let mut dist:Vec<f64> = Vec::from_elem(node_len, Float::infinity());
         let mut prev:Vec<Option<NodeIndex>> = Vec::from_elem(node_len, None);
-        let mut queue:PriorityQueue<DistPair> = PriorityQueue::new();
-        queue.push(DistPair(source, 0.0));
+        let mut queue:PriorityQueue<NodeDist> = PriorityQueue::new();
+        queue.push(NodeDist(source, 0.0));
         *dist.get_mut(source) = 0.0;
         loop {
             match queue.pop(){
-                Some(DistPair(u, dist_u)) => {
+                Some(NodeDist(u, dist_u)) => {
                     for &v in self.out_nodes(u).iter(){
                         let dist_edge:f64 = self.get_edge(u, v)
                                                 .unwrap()
@@ -94,7 +100,7 @@ pub trait PathSearchable<N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>>: Sea
                             *dist.get_mut(v) = dist_u + dist_edge;
                             *prev.get_mut(v) = Some(u);
                         }
-                        queue.push(DistPair(v, dist[v])); 
+                        queue.push(NodeDist(v, dist[v])); 
                     }
                 },
                 None    => break,
@@ -195,6 +201,18 @@ fn depth_first_search(){
                             .map(|x|{graph.node_of(x).unwrap()})
                             .collect();
     assert_eq!(dfs, vec![1, 4, 6, 5, 7, 3, 2]);
+}
+
+#[test]
+fn dist_pair_comparisons(){
+    let a = NodeDist(10u, 6.6);
+    let b = NodeDist(24u, 0.0);
+    let c = NodeDist(15u, 6.6);
+    let d = NodeDist(29u, Float::infinity());
+    assert!(b > a);
+    assert!(c == a);
+    assert!(d < a);
+    assert!(b > d);
 }
 
 #[test]

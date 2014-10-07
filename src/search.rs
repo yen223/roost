@@ -1,5 +1,5 @@
 use roost::{Graph, SparseGraph, NodeIndex};
-use std::collections::{HashSet, RingBuf, DList, Deque};
+use std::collections::{HashSet, RingBuf, DList, Deque, PriorityQueue};
 use std::iter::Iterator;
 
 
@@ -14,6 +14,31 @@ struct DepthFirstVisit<'a, V:Clone+Eq, E, G:'a + Graph<V, E>>{
     next_nodes: Vec<NodeIndex>,
     visited: HashSet<NodeIndex>,
 }
+
+#[deriving(PartialEq, Clone)]
+struct DistPair(NodeIndex, f64);
+
+impl Ord for DistPair{
+    fn cmp(&self, other:&DistPair)->Ordering{
+        // The compare function is inverted,
+        // so that the max-heap becomes a
+        // min-heap.
+        let DistPair(_, dist_a) = *self;
+        let DistPair(_, dist_b) = *other;
+        match dist_b.partial_cmp(&dist_a){
+            Some(o) => o,
+            None    => Equal,
+        }
+    }
+}
+
+impl PartialOrd for DistPair{
+    fn partial_cmp(&self, other:&DistPair) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Eq for DistPair{}
 
 pub trait DistanceEdge<N:Num+ToPrimitive>:Clone {
     fn distance(&self) -> N;
@@ -52,15 +77,13 @@ pub trait PathSearchable<N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>>: Sea
         let node_len = self.nodes().len();
         let mut dist:Vec<f64> = Vec::from_elem(node_len, Float::infinity());
         let mut prev:Vec<Option<NodeIndex>> = Vec::from_elem(node_len, None);
-        let mut queue:DList<NodeIndex> = DList::new();
-        queue.push(source);
+        let mut queue:PriorityQueue<DistPair> = PriorityQueue::new();
+        queue.push(DistPair(source, 0.0));
         *dist.get_mut(source) = 0.0;
         loop {
             match queue.pop(){
-                Some(u) => {
-                    let dist_u = dist[u];
-                    for &v in self.neighbors(u).iter(){
-                        queue.push(v);
+                Some(DistPair(u, dist_u)) => {
+                    for &v in self.out_nodes(u).iter(){
                         let dist_edge:f64 = self.get_edge(u, v)
                                                 .unwrap()
                                                 .distance()
@@ -71,6 +94,7 @@ pub trait PathSearchable<N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>>: Sea
                             *dist.get_mut(v) = dist_u + dist_edge;
                             *prev.get_mut(v) = Some(u);
                         }
+                        queue.push(DistPair(v, dist[v])); 
                     }
                 },
                 None    => break,
@@ -105,8 +129,8 @@ impl<'a, N:Clone+Eq, E, G: Graph<N, E>> Iterator<NodeIndex> for BreadthFirstVisi
         let curr = self.next_nodes.pop_front();
         match curr {
             Some(node) => {
-                let neighbors = self.gp.neighbors(node);
-                for n in neighbors.into_iter(){
+                let out_nodes = self.gp.out_nodes(node);
+                for n in out_nodes.into_iter(){
                     if !self.visited.contains(&n){
                         self.visited.insert(n);
                         self.next_nodes.push(n);
@@ -124,8 +148,8 @@ impl<'a, N:Clone+Eq, E, G: Graph<N, E>> Iterator<NodeIndex> for DepthFirstVisit<
         let curr = self.next_nodes.pop();
         match curr {
             Some(node) => {
-                let neighbors = self.gp.neighbors(node);
-                for n in neighbors.into_iter(){
+                let out_nodes = self.gp.out_nodes(node);
+                for n in out_nodes.into_iter(){
                     if !self.visited.contains(&n){
                         self.visited.insert(n);
                         self.next_nodes.push(n);

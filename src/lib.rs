@@ -1,8 +1,10 @@
 mod sparse_graph;
 mod search;
+mod edge;
 
 mod roost{
     pub use sparse_graph::SparseGraph;
+    pub use edge;
     // pub use search::depth_first_visit;
 
     pub type NodeIndex = uint;

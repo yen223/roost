@@ -1,4 +1,5 @@
 use roost::{Graph, SparseGraph, NodeIndex};
+use roost::edge::DistanceEdge;
 use std::collections::{HashSet, RingBuf, DList, Deque, PriorityQueue};
 use std::iter::Iterator;
 
@@ -51,12 +52,6 @@ impl PartialEq for NodeDist{
     }
 }
 impl Eq for NodeDist{}
-
-pub trait DistanceEdge<N>:Clone 
-    where N: Num+ToPrimitive,
-{
-    fn distance(&self) -> N;
-}
 
 pub trait Searchable<V,E>:Graph<V,E> 
     where V: Clone+Eq,

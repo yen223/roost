@@ -2,13 +2,19 @@ use std::collections::HashMap;
 use std::vec::Vec;
 use roost::{Graph, NodeIndex, EdgeIndex};
 
-pub struct SparseGraph<V: Clone, E: Clone>{
+pub struct SparseGraph<V, E>
+    where V: Clone,
+          E: Clone,
+{
     nodes: Vec<V>,
     edges: HashMap<EdgeIndex,E>,
     adj_list: Vec<Vec<NodeIndex>>,
 }
 
-impl<V: Eq+Clone, E: Clone> SparseGraph<V, E>{
+impl<V, E> SparseGraph<V, E>
+    where V: Eq+Clone,
+          E: Clone,
+{
     pub fn new()->SparseGraph<V, E>{
         let n:Vec<V> = Vec::new();
         let e:HashMap<EdgeIndex, E> = HashMap::new();
@@ -41,7 +47,10 @@ impl<V: Eq+Clone, E: Clone> SparseGraph<V, E>{
     }
 }
 
-impl<V: Eq+Clone, E: Clone> FromIterator<(V, V, E)> for SparseGraph<V, E>{
+impl<V, E> FromIterator<(V, V, E)> for SparseGraph<V, E>
+    where V: Eq+Clone,
+          E: Clone,
+{
     fn from_iter<T: Iterator<(V, V, E)>>(mut iterator: T) -> SparseGraph<V, E>{
         let mut graph:SparseGraph<V, E> = SparseGraph::new();
         for (from, to, edge) in iterator{
@@ -51,7 +60,10 @@ impl<V: Eq+Clone, E: Clone> FromIterator<(V, V, E)> for SparseGraph<V, E>{
     }
 }
 
-impl<V: Eq+Clone, E: Clone> Graph<V, E> for SparseGraph<V, E> {
+impl<V, E> Graph<V, E> for SparseGraph<V, E> 
+    where V: Eq+Clone,
+          E: Clone,
+{
     fn insert_node(&mut self, node: V)->NodeIndex{
         self.add_node(node);
         return self.nodes.len()-1

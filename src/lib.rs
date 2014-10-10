@@ -20,7 +20,7 @@ mod roost{
         fn get_edge(&self, from: NodeIndex, to: NodeIndex) -> Option<E>;
     }
 
-    fn Node<V,E> (item: &V, graph:&Graph<V,E>)->Option<NodeIndex>{
+    fn node<V,E> (item: &V, graph:&Graph<V,E>)->Option<NodeIndex>{
         graph.index_of(item)
     }
 }

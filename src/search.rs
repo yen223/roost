@@ -3,13 +3,19 @@ use std::collections::{HashSet, RingBuf, DList, Deque, PriorityQueue};
 use std::iter::Iterator;
 
 
-struct BreadthFirstVisit<'a, V:Clone+Eq, E, G:'a + Graph<V, E>>{
+struct BreadthFirstVisit<'a, V, E, G>
+    where V: Clone+Eq,
+          G: 'a + Graph<V,E>,
+{
     gp: &'a G,
     next_nodes: RingBuf<NodeIndex>,
     visited: HashSet<NodeIndex>,
 }
 
-struct DepthFirstVisit<'a, V:Clone+Eq, E, G:'a + Graph<V, E>>{
+struct DepthFirstVisit<'a, V, E, G>
+    where V: Clone+Eq,
+          G: 'a + Graph<V,E>,
+{
     gp: &'a G,
     next_nodes: Vec<NodeIndex>,
     visited: HashSet<NodeIndex>,
@@ -46,11 +52,15 @@ impl PartialEq for NodeDist{
 }
 impl Eq for NodeDist{}
 
-pub trait DistanceEdge<N:Num+ToPrimitive>:Clone {
+pub trait DistanceEdge<N>:Clone 
+    where N: Num+ToPrimitive,
+{
     fn distance(&self) -> N;
 }
 
-pub trait Searchable<V:Clone+Eq,E>:Graph<V,E> {
+pub trait Searchable<V,E>:Graph<V,E> 
+    where V: Clone+Eq,
+{
     fn breadth_first_visit(&self, root: &V)->BreadthFirstVisit<V, E, Self>{
         let mut visit:HashSet<NodeIndex> = HashSet::new();
         let mut queue = RingBuf::new();
@@ -78,7 +88,11 @@ pub trait Searchable<V:Clone+Eq,E>:Graph<V,E> {
     }
 }
 
-pub trait PathSearchable<N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>>: Searchable<V, E> {
+pub trait PathSearchable<N, V, E>: Searchable<V, E> 
+    where N: Num+ToPrimitive,
+          V: Clone+Eq,
+          E: DistanceEdge<N>,
+{
     fn dijkstra_shortest_path(&self, source: NodeIndex, target: NodeIndex) -> Option<Vec<NodeIndex>>{
         let node_len = self.nodes().len();
         let mut dist:Vec<f64> = Vec::from_elem(node_len, Float::infinity());
@@ -130,7 +144,10 @@ pub trait PathSearchable<N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>>: Sea
     }
 }
 
-impl<'a, N:Clone+Eq, E, G: Graph<N, E>> Iterator<NodeIndex> for BreadthFirstVisit<'a, N, E, G>{
+impl<'a, N, E, G> Iterator<NodeIndex> for BreadthFirstVisit<'a, N, E, G>
+    where N: Clone+Eq,
+          G: Graph<N, E>,
+{
     fn next(&mut self) -> Option<NodeIndex>{
         let curr = self.next_nodes.pop_front();
         match curr {
@@ -149,7 +166,10 @@ impl<'a, N:Clone+Eq, E, G: Graph<N, E>> Iterator<NodeIndex> for BreadthFirstVisi
     }
 }
 
-impl<'a, N:Clone+Eq, E, G: Graph<N, E>> Iterator<NodeIndex> for DepthFirstVisit<'a, N, E, G>{
+impl<'a, N, E, G> Iterator<NodeIndex> for DepthFirstVisit<'a, N, E, G>
+    where N: Clone+Eq,
+          G: Graph<N, E>
+{
     fn next(&mut self) -> Option<NodeIndex>{
         let curr = self.next_nodes.pop();
         match curr {

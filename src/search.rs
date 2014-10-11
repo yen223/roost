@@ -170,17 +170,21 @@ impl<'a, N, E, G> Iterator<EdgeIndex> for DepthFirstVisit<'a, N, E, G>
           G: Graph<N, E>
 {
     fn next(&mut self) -> Option<EdgeIndex>{
-        let curr = self.next_edges.pop();
-        match curr {
-            Some((_, node)) if !self.visited.contains(&node) => {
-                self.visited.insert(node);
-                let out_nodes = self.gp.out_nodes(node);
-                for n in out_nodes.into_iter().rev(){
-                    self.next_edges.push((node, n));
-                }
-            },
-            Some(_) => {}
-            None    => {}
+        let mut curr;
+        loop {
+            curr = self.next_edges.pop();
+            match curr {
+                Some((_, node)) if !self.visited.contains(&node) => {
+                    self.visited.insert(node);
+                    let out_nodes = self.gp.out_nodes(node);
+                    for n in out_nodes.into_iter().rev(){
+                        self.next_edges.push((node, n));
+                    }
+                    break
+                },
+                Some(_) => {}
+                None    => {break}
+            }
         }
         curr
     }

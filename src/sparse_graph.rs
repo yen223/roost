@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::vec::Vec;
-use roost::{Graph, Node, NodeIndex, EdgeIndex, NodeNotFound};
-
+use roost::{Graph, Node, NodeIndex, EdgeIndex};
+use roost::graph_error::NodeNotFound;
 pub struct SparseGraph<V, E>
     where V: Clone,
           E: Clone,

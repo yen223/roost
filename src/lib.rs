@@ -4,25 +4,22 @@
 //! A graph library, written in pure Rust.
 
 mod sparse_graph;
+mod graph_error;
 mod path;
 mod traversal;
 mod edge;
 
 mod roost{
     pub use sparse_graph::SparseGraph;
+    pub use graph_error;
     pub use edge;
     pub use path;
     pub use traversal;
     
-    #[deriving(Show)]
-    pub enum GraphError {
-        NodeNotFound,
-        UnknownError,
-    }
     
     pub type NodeIndex = uint;
     pub type EdgeIndex = (NodeIndex, NodeIndex);
-    pub type Node = Result<NodeIndex, GraphError>; 
+    pub type Node = Result<NodeIndex, graph_error::GraphError>; 
     pub type Edge = Option<EdgeIndex>;
 
     /// The base Graph trait. Provides basic operations to access, add, and 

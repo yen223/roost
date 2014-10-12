@@ -1,4 +1,5 @@
-use roost::{Graph, SparseGraph, NodeIndex, Node, GraphError, UnknownError};
+use roost::{Graph, SparseGraph, NodeIndex, Node};
+use roost::graph_error::{GraphError, UnknownError};
 use roost::edge::DistanceEdge;
 use roost::traversal::Traverseable;
 use std::collections::{DList, Deque, PriorityQueue, };

@@ -34,7 +34,7 @@ impl PartialEq for NodeDist{
 }
 impl Eq for NodeDist{}
 
-pub trait PathSearchable<N, V, E>: Graph<V, E> 
+pub trait Path<N, V, E>: Graph<V, E> 
     where N: Num+ToPrimitive,
           V: Clone+Eq,
           E: DistanceEdge<N>,
@@ -90,7 +90,7 @@ pub trait PathSearchable<N, V, E>: Graph<V, E>
     }
 }
 
-impl <N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>> PathSearchable<N, V, E> for SparseGraph<V, E>{}
+impl <N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>> Path<N, V, E> for SparseGraph<V, E>{}
 
 #[test]
 fn dist_pair_comparisons(){

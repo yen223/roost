@@ -19,7 +19,7 @@ struct DepthFirstVisit<'a, V, E, G>
         visited: HashSet<NodeIndex>,
 }
 
-pub trait Searchable<V,E>:Graph<V,E> 
+pub trait Traverseable<V,E>:Graph<V,E> 
     where V: Clone+Eq,
 {
     fn breadth_first_visit(&self, root: &V)->BreadthFirstVisit<V, E, Self>{
@@ -100,7 +100,7 @@ impl<'a, N, E, G> Iterator<EdgeIndex> for DepthFirstVisit<'a, N, E, G>
     }
 }
 
-impl <V:Clone+Eq, E:Clone> Searchable<V,E> for SparseGraph<V,E>{}
+impl <V:Clone+Eq, E:Clone> Traverseable<V,E> for SparseGraph<V,E>{}
 
 #[test]
 fn breadth_first_search(){

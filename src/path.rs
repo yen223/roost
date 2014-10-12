@@ -1,5 +1,6 @@
-use roost::{Graph, SparseGraph, NodeIndex, };
+use roost::{Graph, SparseGraph, NodeIndex, Node};
 use roost::edge::DistanceEdge;
+use roost::traversal::Traverseable;
 use std::collections::{DList, Deque, PriorityQueue, };
 use std::iter::{Iterator};
 
@@ -34,11 +35,16 @@ impl PartialEq for NodeDist{
 }
 impl Eq for NodeDist{}
 
-pub trait Path<N, V, E>: Graph<V, E> 
+pub trait Path<N, V, E>: Traverseable<V, E> 
     where N: Num+ToPrimitive,
           V: Clone+Eq,
           E: DistanceEdge<N>,
 {
+    fn has_path(&self, source: Node, target: Node) -> bool {
+        let target_idx = target.expect("Target not found in graph.");
+        self.breadth_first_visit(source).any(|(_, to)|{to == target_idx})
+    }
+
     fn dijkstra_shortest_path(&self, source: NodeIndex, target: NodeIndex) -> Option<Vec<NodeIndex>>{
         let node_len = self.nodes().len();
         let mut dist:Vec<f64> = Vec::from_elem(node_len, Float::infinity());
@@ -86,53 +92,79 @@ pub trait Path<N, V, E>: Graph<V, E>
         }
         let result:Vec<NodeIndex> = path.into_iter().collect();
         Some(result)
-
     }
 }
 
 impl <N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>> Path<N, V, E> for SparseGraph<V, E>{}
 
-#[test]
-fn dist_pair_comparisons(){
-    let a = NodeDist(10u, 6.6);
-    let b = NodeDist(24u, 0.0);
-    let c = NodeDist(15u, 6.6);
-    let d = NodeDist(29u, Float::infinity());
-    assert!(b > a);
-    assert!(c == a);
-    assert!(d < a);
-    assert!(b > d);
-}
-
-#[test]
-fn dijkstra_with_path(){
-    #[deriving(Eq, PartialEq, Clone)]
-    struct DistEdge{
-        d: uint,
+ #[cfg(test)]
+mod test{
+    use roost::{Graph, SparseGraph, node};
+    use roost::edge::{UnitEdge, DistanceEdge};
+    use roost::path::{NodeDist, Path};
+    #[test]
+    fn dist_pair_comparisons(){
+        let a = NodeDist(10u, 6.6);
+        let b = NodeDist(24u, 0.0);
+        let c = NodeDist(15u, 6.6);
+        let d = NodeDist(29u, Float::infinity());
+        assert!(b > a);
+        assert!(c == a);
+        assert!(d < a);
+        assert!(b > d);
     }
 
-    impl DistanceEdge<uint> for DistEdge{
-        fn distance(&self) -> uint{
-            self.d
+    #[test]
+    fn graph_has_path(){
+        let mut graph:SparseGraph<&str, UnitEdge> = SparseGraph::new();
+        graph.add_edge("a", "b", UnitEdge);
+        graph.add_edge("a", "c", UnitEdge);
+        graph.add_edge("a", "f", UnitEdge);
+        graph.add_edge("b", "c", UnitEdge);
+        graph.add_edge("b", "d", UnitEdge);
+        graph.add_edge("c", "d", UnitEdge);
+        graph.add_edge("c", "f", UnitEdge);
+        graph.add_edge("d", "e", UnitEdge);
+        graph.add_edge("e", "f", UnitEdge);
+        graph.add_edge("y", "z", UnitEdge);
+
+        assert!(graph.has_path(node(&graph, &"a"), 
+                               node(&graph, &"d")));
+        assert!(!graph.has_path(node(&graph, &"a"),
+                                node(&graph, &"z")));
+                                
+    }
+
+    #[test]
+    fn dijkstra_with_path(){
+        #[deriving(Eq, PartialEq, Clone)]
+        struct DistEdge{
+            d: uint,
         }
+
+        impl DistanceEdge<uint> for DistEdge{
+            fn distance(&self) -> uint{
+                self.d
+            }
+        }
+
+        let mut graph:SparseGraph<&str, DistEdge> = SparseGraph::new();
+        graph.add_edge("a", "b", DistEdge{d: 7});
+        graph.add_edge("a", "c", DistEdge{d: 9});
+        graph.add_edge("a", "f", DistEdge{d: 14});
+        graph.add_edge("b", "c", DistEdge{d: 10});
+        graph.add_edge("b", "d", DistEdge{d: 15});
+        graph.add_edge("c", "d", DistEdge{d: 11});
+        graph.add_edge("c", "f", DistEdge{d: 2});
+        graph.add_edge("d", "e", DistEdge{d: 6});
+        graph.add_edge("e", "f", DistEdge{d: 9});
+
+        let src_idx = graph.index_of(&"a").unwrap();
+        let trg_idx = graph.index_of(&"e").unwrap();
+        let path:Vec<&str> = graph.dijkstra_shortest_path(src_idx, trg_idx).unwrap()
+                                .iter()
+                                .map(|&x|{graph.node_of(x).unwrap()})
+                                .collect();
+        assert_eq!(path, vec!["a", "c", "d", "e"])
     }
-
-    let mut graph:SparseGraph<&str, DistEdge> = SparseGraph::new();
-    graph.add_edge("a", "b", DistEdge{d: 7});
-    graph.add_edge("a", "c", DistEdge{d: 9});
-    graph.add_edge("a", "f", DistEdge{d: 14});
-    graph.add_edge("b", "c", DistEdge{d: 10});
-    graph.add_edge("b", "d", DistEdge{d: 15});
-    graph.add_edge("c", "d", DistEdge{d: 11});
-    graph.add_edge("c", "f", DistEdge{d: 2});
-    graph.add_edge("d", "e", DistEdge{d: 6});
-    graph.add_edge("e", "f", DistEdge{d: 9});
-
-    let src_idx = graph.index_of(&"a").unwrap();
-    let trg_idx = graph.index_of(&"e").unwrap();
-    let path:Vec<&str> = graph.dijkstra_shortest_path(src_idx, trg_idx).unwrap()
-                            .iter()
-                            .map(|&x|{graph.node_of(x).unwrap()})
-                            .collect();
-    assert_eq!(path, vec!["a", "c", "d", "e"])
 }

@@ -1,4 +1,4 @@
-use roost::{Graph, SparseGraph, NodeIndex, EdgeIndex};
+use roost::{Graph, SparseGraph, Node, NodeIndex, EdgeIndex, node};
 use std::collections::{HashSet, DList, Deque};
 
 struct BreadthFirstVisit<'a, V, E, G>
@@ -22,32 +22,24 @@ struct DepthFirstVisit<'a, V, E, G>
 pub trait Traverseable<V,E>:Graph<V,E> 
     where V: Clone+Eq,
 {
-    fn breadth_first_visit(&self, root: &V)->BreadthFirstVisit<V, E, Self>{
+    fn breadth_first_visit(&self, root: Node) -> BreadthFirstVisit<V, E, Self>{
+        let root_idx = root.expect("Root node does not exist in graph.");
         let mut visit:HashSet<NodeIndex> = HashSet::new();
         let mut queue = DList::new();
-        match self.index_of(root){
-            Some(x) => {
-                visit.insert(x);
-                for &nb in self.out_nodes(x).iter(){
-                    queue.push((x, nb));
-                }
-            },
-            None    => {}
+        visit.insert(root_idx);
+        for &nb in self.out_nodes(root_idx).iter(){
+            queue.push((root_idx, nb));
         }
         BreadthFirstVisit{gp: self, next_edges: queue, visited: visit}
     }
 
-    fn depth_first_visit(&self, root: &V)-> DepthFirstVisit<V, E, Self>{
+    fn depth_first_visit(&self, root: Node)-> DepthFirstVisit<V, E, Self>{
+        let root_idx = root.expect("Root node does not exist in graph.");
         let mut visit:HashSet<NodeIndex> = HashSet::new();
         let mut stack = Vec::new(); 
-        match self.index_of(root){
-            Some(x) => {
-                visit.insert(x);
-                for &nb in self.out_nodes(x).iter().rev(){
-                    stack.push((x, nb));
-                }
-            },
-            None    => {}
+        visit.insert(root_idx);
+        for &nb in self.out_nodes(root_idx).iter().rev(){
+            stack.push((root_idx, nb));
         }
         DepthFirstVisit{gp: self, next_edges: stack, visited: visit}
     }
@@ -111,7 +103,7 @@ fn breadth_first_search(){
     graph.add_edge(4i, 5i, 4);
     graph.add_edge(4i, 6i, 6);
     graph.add_edge(5i, 7i, 7);
-    let bfs:Vec<(int, int)> = graph.breadth_first_visit(&1i)
+    let bfs:Vec<(int, int)> = graph.breadth_first_visit(node(&graph, &1i))
                             .map(|(x,y)|{
                                 (graph.node_of(x).unwrap(), graph.node_of(y).unwrap())
                             })
@@ -134,7 +126,7 @@ fn depth_first_search(){
     graph.add_edge(3i, 5i, 4);
     graph.add_edge(3i, 6i, 6);
     graph.add_edge(5i, 7i, 7);
-    let dfs:Vec<(int, int)> = graph.depth_first_visit(&1i)
+    let dfs:Vec<(int, int)> = graph.depth_first_visit(node(&graph, &1i))
                             .map(|(x, y)|{
                                 (graph.node_of(x).unwrap(), graph.node_of(y).unwrap())
                             })

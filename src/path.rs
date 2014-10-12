@@ -26,6 +26,7 @@ impl PartialOrd for NodeDist{
         Some(self.cmp(other))
     }
 }
+
 impl PartialEq for NodeDist{
     fn eq(&self, other:&NodeDist) -> bool{
         let NodeDist(_, dist_a) = *self;

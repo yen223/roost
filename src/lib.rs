@@ -1,3 +1,8 @@
+#![crate_name = "roost"]
+#![crate_type="lib"]
+
+//! A graph library, written in pure Rust.
+
 mod sparse_graph;
 mod search;
 mod edge;
@@ -5,10 +10,15 @@ mod edge;
 mod roost{
     pub use sparse_graph::SparseGraph;
     pub use edge;
+    pub use search;
     // pub use search::depth_first_visit;
 
     pub type NodeIndex = uint;
     pub type EdgeIndex = (NodeIndex, NodeIndex);
+    
+    /// The base Graph trait. Provides basic operations to access, add, and 
+    /// remove nodes and edges in a graph. Graphs can take any cloneable type 
+    /// for Nodes and Edges. 
     pub trait Graph<V, E>{
         fn insert_node(&mut self, node: V) -> NodeIndex;
         fn index_of(&self, node: &V) -> Option<NodeIndex>;

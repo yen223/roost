@@ -4,13 +4,15 @@
 //! A graph library, written in pure Rust.
 
 mod sparse_graph;
-mod search;
+mod path;
+mod traversal;
 mod edge;
 
 mod roost{
     pub use sparse_graph::SparseGraph;
     pub use edge;
-    pub use search;
+    pub use path;
+    pub use traversal;
     // pub use search::depth_first_visit;
 
     pub type NodeIndex = uint;

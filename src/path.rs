@@ -1,4 +1,4 @@
-use roost::{Graph, SparseGraph, NodeIndex, Node};
+use roost::{Graph, SparseGraph, NodeIndex, Node, GraphError, UnknownError};
 use roost::edge::DistanceEdge;
 use roost::traversal::Traverseable;
 use std::collections::{DList, Deque, PriorityQueue, };
@@ -42,17 +42,22 @@ pub trait Path<N, V, E>: Traverseable<V, E>
           E: DistanceEdge<N>,
 {
     fn has_path(&self, source: Node, target: Node) -> bool {
-        let target_idx = target.expect("Target not found in graph.");
-        self.breadth_first_visit(source).any(|(_, to)|{to == target_idx})
+        match target {
+            Ok(target_idx) => self.breadth_first_visit(source)
+                                  .any(|(_, to)|{to == target_idx}),
+            Err(_)         => false,
+        }
     }
 
-    fn dijkstra_shortest_path(&self, source: NodeIndex, target: NodeIndex) -> Option<Vec<NodeIndex>>{
+    fn dijkstra_shortest_path(&self, source: Node, target: Node) -> Result<Vec<Node>, GraphError>{
+        let src_idx = try!(source);
+        let trg_idx = try!(target);
         let node_len = self.nodes().len();
         let mut dist:Vec<f64> = Vec::from_elem(node_len, Float::infinity());
         let mut prev:Vec<Option<NodeIndex>> = Vec::from_elem(node_len, None);
         let mut queue:PriorityQueue<NodeDist> = PriorityQueue::new();
-        queue.push(NodeDist(source, 0.0));
-        *dist.get_mut(source) = 0.0;
+        queue.push(NodeDist(src_idx, 0.0));
+        *dist.get_mut(src_idx) = 0.0;
         loop {
             match queue.pop(){
                 Some(NodeDist(u, dist_u)) => {
@@ -74,11 +79,11 @@ pub trait Path<N, V, E>: Traverseable<V, E>
             }
         }
         let mut path:DList<NodeIndex> = DList::new();
-        path.push_front(target);
-        let mut curr = target;
+        path.push_front(trg_idx);
+        let mut curr = trg_idx;
         loop {
             match prev[curr]{
-                Some(parent) if parent == source => {
+                Some(parent) if parent == src_idx => {
                     path.push_front(parent);
                     break;
                 },
@@ -87,12 +92,12 @@ pub trait Path<N, V, E>: Traverseable<V, E>
                     curr = parent;
                 },
                 None         => {
-                    return None
+                    return Err(UnknownError);
                 },
             }
         }
-        let result:Vec<NodeIndex> = path.into_iter().collect();
-        Some(result)
+        let result:Vec<Node> = path.into_iter().map(|x|{Ok(x)}).collect();
+        Ok(result)
     }
 }
 
@@ -129,10 +134,10 @@ mod test{
         graph.add_edge("e", "f", UnitEdge);
         graph.add_edge("y", "z", UnitEdge);
 
-        assert!(graph.has_path(node(&graph, &"a"), 
-                               node(&graph, &"d")));
-        assert!(!graph.has_path(node(&graph, &"a"),
-                                node(&graph, &"z")));
+        assert!(graph.has_path(node(&"a", &graph), 
+                               node(&"d", &graph)));
+        assert!(!graph.has_path(node(&"a", &graph),
+                                node(&"z", &graph)));
                                 
     }
 
@@ -149,22 +154,25 @@ mod test{
             }
         }
 
-        let mut graph:SparseGraph<&str, DistEdge> = SparseGraph::new();
-        graph.add_edge("a", "b", DistEdge{d: 7});
-        graph.add_edge("a", "c", DistEdge{d: 9});
-        graph.add_edge("a", "f", DistEdge{d: 14});
-        graph.add_edge("b", "c", DistEdge{d: 10});
-        graph.add_edge("b", "d", DistEdge{d: 15});
-        graph.add_edge("c", "d", DistEdge{d: 11});
-        graph.add_edge("c", "f", DistEdge{d: 2});
-        graph.add_edge("d", "e", DistEdge{d: 6});
-        graph.add_edge("e", "f", DistEdge{d: 9});
+        let mut gp:SparseGraph<&str, DistEdge> = SparseGraph::new();
+        gp.add_edge("a", "b", DistEdge{d: 7});
+        gp.add_edge("a", "c", DistEdge{d: 9});
+        gp.add_edge("a", "f", DistEdge{d: 14});
+        gp.add_edge("b", "c", DistEdge{d: 10});
+        gp.add_edge("b", "d", DistEdge{d: 15});
+        gp.add_edge("c", "d", DistEdge{d: 11});
+        gp.add_edge("c", "f", DistEdge{d: 2});
+        gp.add_edge("d", "e", DistEdge{d: 6});
+        gp.add_edge("e", "f", DistEdge{d: 9});
 
-        let src_idx = graph.index_of(&"a").unwrap();
-        let trg_idx = graph.index_of(&"e").unwrap();
-        let path:Vec<&str> = graph.dijkstra_shortest_path(src_idx, trg_idx).unwrap()
+        // let src_idx = gp.node_to_index(&"a").ok().unwrap();
+        // let trg_idx = gp.node_to_index(&"e").ok().unwrap();
+        let path:Vec<&str> = gp.dijkstra_shortest_path(
+                                node(&"a", &gp),
+                                node(&"e", &gp)
+                                ).unwrap()
                                 .iter()
-                                .map(|&x|{graph.node_of(x).unwrap()})
+                                .map(|&x|{gp.index_to_node(x.unwrap()).unwrap()})
                                 .collect();
         assert_eq!(path, vec!["a", "c", "d", "e"])
     }

@@ -13,11 +13,16 @@ mod roost{
     pub use edge;
     pub use path;
     pub use traversal;
-    // pub use search::depth_first_visit;
-
+    
+    #[deriving(Show)]
+    pub enum GraphError {
+        NodeNotFound,
+        UnknownError,
+    }
+    
     pub type NodeIndex = uint;
     pub type EdgeIndex = (NodeIndex, NodeIndex);
-    pub type Node = Option<NodeIndex>; 
+    pub type Node = Result<NodeIndex, GraphError>; 
     pub type Edge = Option<EdgeIndex>;
 
     /// The base Graph trait. Provides basic operations to access, add, and 
@@ -25,8 +30,8 @@ mod roost{
     /// for Nodes and Edges. 
     pub trait Graph<V, E>{
         fn insert_node(&mut self, node: V) -> NodeIndex;
-        fn index_of(&self, node: &V) -> Node;
-        fn node_of(&self, idx: NodeIndex) -> Option<V>;
+        fn node_to_index(&self, node: &V) -> Node;
+        fn index_to_node(&self, idx: NodeIndex) -> Option<V>;
         fn out_nodes(&self, idx: NodeIndex) -> Vec<NodeIndex>;
         fn in_edges(&self, idx: NodeIndex) -> Vec<EdgeIndex>;
         fn out_edges(&self, idx: NodeIndex) -> Vec<EdgeIndex>;
@@ -40,7 +45,7 @@ mod roost{
     /// Returns None if not found.
     /// All public functions and methods which take a node as an input
     /// should use Node as the input type.
-    pub fn node<V,E> (graph:&Graph<V,E>, item: &V) -> Node {
-        graph.index_of(item)
+    pub fn node<V,E> (item: &V, graph:&Graph<V,E>) -> Node {
+        graph.node_to_index(item)
     }
 }

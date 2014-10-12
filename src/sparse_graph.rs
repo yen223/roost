@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::vec::Vec;
-use roost::{Graph, NodeIndex, EdgeIndex};
+use roost::{Graph, Node, NodeIndex, EdgeIndex, NodeNotFound};
 
 pub struct SparseGraph<V, E>
     where V: Clone,
@@ -28,14 +28,14 @@ impl<V, E> SparseGraph<V, E>
     }
 
     pub fn add_edge(&mut self, from: V, to: V, edge: E){
-        let fi:NodeIndex = match self.index_of(&from){
+        let fi:NodeIndex = match self.node_to_index(&from).ok(){
             Some(x) => x,
             None    => {
                 self.add_node(from);
                 self.nodes.len()-1
             },
         };
-        let ti:NodeIndex = match self.index_of(&to){
+        let ti:NodeIndex = match self.node_to_index(&to).ok(){
             Some(x) => x,
             None    => {
                 self.add_node(to);
@@ -68,15 +68,16 @@ impl<V, E> Graph<V, E> for SparseGraph<V, E>
         self.add_node(node);
         return self.nodes.len()-1
     }
-    fn index_of(&self, n: &V) -> Option<NodeIndex> {
+
+    fn node_to_index(&self, n: &V) -> Node {
         let nds = self.nodes.as_slice();
         for (idx, x) in nds.iter().enumerate(){
-            if *x == *n {return Some(idx);}
+            if *x == *n {return Ok(idx);}
         }
-        return None;
+        return Err(NodeNotFound);
     }
 
-    fn node_of(&self, idx: NodeIndex) -> Option<V>{
+    fn index_to_node(&self, idx: NodeIndex) -> Option<V>{
         if idx > self.nodes.len()-1 {
             None
         } else {
@@ -85,7 +86,7 @@ impl<V, E> Graph<V, E> for SparseGraph<V, E>
     }
 
     fn in_edges(&self, idx: NodeIndex) -> Vec<EdgeIndex>{
-       let mut out_edges:Vec<EdgeIndex> = Vec::new();
+        let mut out_edges:Vec<EdgeIndex> = Vec::new();
         for (from, ref nbs) in self.adj_list.iter().enumerate(){
             for &to in nbs.iter(){
                 if to == idx {out_edges.push((from, to))};
@@ -100,23 +101,23 @@ impl<V, E> Graph<V, E> for SparseGraph<V, E>
     }
 
     fn contains_node(&self, node: &V) -> bool{
-        match self.index_of(node){
+        match self.node_to_index(node).ok(){
             Some(_) => true,
             None    => false,
         }
     }
 
     fn contains_edge(&self, from: &V, to: &V) -> bool{
-        let fi = match self.index_of(from){
-            Some(x)     => x,
-            None        => return false,
+        let fi = match self.node_to_index(from){
+            Ok(x)     => x,
+            Err(_)    => return false,
         };
 
-        let ti = match self.index_of(to){
-            Some(x)     => x,
-            None        => return false,
+        let ti = match self.node_to_index(to){
+            Ok(x)     => x,
+            Err(_)    => return false,
         };
-        !self.edges.find(&(fi, ti)).is_none()
+        self.edges.find(&(fi, ti)).is_some()
     }
 
     fn out_nodes(&self, idx: NodeIndex)->Vec<NodeIndex>{
@@ -160,9 +161,9 @@ fn graph_with_str_nodes(){
     assert!(gp.contains_edge(&"A", &"B"));
     assert!(!gp.contains_edge(&"A", &"D"));
 
-    let a_idx = gp.index_of(&"A").unwrap();
-    let b_idx = gp.index_of(&"B").unwrap();
-    let c_idx = gp.index_of(&"C").unwrap();
+    let a_idx = gp.node_to_index(&"A").unwrap();
+    let b_idx = gp.node_to_index(&"B").unwrap();
+    let c_idx = gp.node_to_index(&"C").unwrap();
     assert_eq!(gp.out_nodes(a_idx), vec![b_idx, c_idx])
 
     let mut gp_mut = gp;

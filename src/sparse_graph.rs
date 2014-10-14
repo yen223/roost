@@ -9,6 +9,7 @@ pub struct SparseGraph<V, E>
     nodes: Vec<V>,
     edges: HashMap<EdgeIndex,E>,
     adj_list: Vec<Vec<NodeIndex>>,
+    directed: bool,
 }
 
 impl<V, E> SparseGraph<V, E>
@@ -19,7 +20,14 @@ impl<V, E> SparseGraph<V, E>
         let n:Vec<V> = Vec::new();
         let e:HashMap<EdgeIndex, E> = HashMap::new();
         let adjl:Vec<Vec<NodeIndex>> = Vec::new();
-        SparseGraph{nodes: n, edges: e, adj_list: adjl}
+        SparseGraph{nodes: n, edges: e, adj_list: adjl, directed: false}
+    }
+
+    pub fn new_directed()->SparseGraph<V, E>{
+        let n:Vec<V> = Vec::new();
+        let e:HashMap<EdgeIndex, E> = HashMap::new();
+        let adjl:Vec<Vec<NodeIndex>> = Vec::new();
+        SparseGraph{nodes: n, edges: e, adj_list: adjl, directed: true}
     }
 
     fn add_node(&mut self, n: V){
@@ -27,7 +35,7 @@ impl<V, E> SparseGraph<V, E>
         self.adj_list.push(Vec::new());
     }
 
-    pub fn add_edge(&mut self, from: V, to: V, edge: E){
+    fn insert_edge(&mut self, from: V, to: V, edge: E){
         let fi:NodeIndex = match self.node_to_index(&from).ok(){
             Some(x) => x,
             None    => {
@@ -44,6 +52,13 @@ impl<V, E> SparseGraph<V, E>
         };
         self.edges.insert((fi, ti), edge);
         self.adj_list.get_mut(fi).push(ti);
+    }
+    
+    pub fn add_edge(&mut self, from: V, to: V, edge: E){
+        self.insert_edge(from.clone(), to.clone(), edge.clone());
+        if !self.directed{
+            self.insert_edge(to, from, edge);
+        }
     }
 }
 

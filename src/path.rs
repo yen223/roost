@@ -123,7 +123,7 @@ mod test{
 
     #[test]
     fn graph_has_path(){
-        let mut graph:SparseGraph<&str, UnitEdge> = SparseGraph::new();
+        let mut graph:SparseGraph<&str, UnitEdge> = SparseGraph::new_directed();
         graph.add_edge("a", "b", UnitEdge);
         graph.add_edge("a", "c", UnitEdge);
         graph.add_edge("a", "f", UnitEdge);
@@ -155,7 +155,7 @@ mod test{
             }
         }
 
-        let mut gp:SparseGraph<&str, DistEdge> = SparseGraph::new();
+        let mut gp:SparseGraph<&str, DistEdge> = SparseGraph::new_directed();
         gp.add_edge("a", "b", DistEdge{d: 7});
         gp.add_edge("a", "c", DistEdge{d: 9});
         gp.add_edge("a", "f", DistEdge{d: 14});

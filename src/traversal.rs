@@ -104,7 +104,7 @@ mod test {
     use roost::traversal::Traverseable;
     #[test]
     fn breadth_first_search(){
-        let mut gp:SparseGraph<int, int> = SparseGraph::new();
+        let mut gp:SparseGraph<int, int> = SparseGraph::new_directed();
         gp.add_edge(1i, 2i, 1);
         gp.add_edge(1i, 3i, 2);
         gp.add_edge(1i, 4i, 1);
@@ -127,7 +127,7 @@ mod test {
 
     #[test]
     fn depth_first_search(){
-        let mut gp:SparseGraph<int, int> = SparseGraph::new();
+        let mut gp:SparseGraph<int, int> = SparseGraph::new_directed();
         gp.add_edge(1i, 2i, 1);
         gp.add_edge(1i, 3i, 2);
         gp.add_edge(2i, 3i, 4);

@@ -1,7 +1,7 @@
-use roost::{Graph, SparseGraph, NodeIndex, Node};
-use roost::graph_error::{GraphError, UnknownError};
-use roost::edge::DistanceEdge;
-use roost::traversal::Traverseable;
+use graph::{Graph, SparseGraph, NodeIndex, Node};
+use graph::graph_error::{GraphError, UnknownError};
+use graph::edge::DistanceEdge;
+use graph::traversal::Traverseable;
 use std::collections::{DList, BinaryHeap };
 use std::iter::{Iterator};
 
@@ -106,9 +106,9 @@ impl <N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>> Path<N, V, E> for Spars
 
  #[cfg(test)]
 mod test{
-    use roost::{Graph, SparseGraph, node};
-    use roost::edge::{UnitEdge, DistanceEdge};
-    use roost::path::{NodeDist, Path};
+    use graph::{Graph, SparseGraph, node};
+    use graph::edge::{UnitEdge, DistanceEdge};
+    use graph::path::{NodeDist, Path};
     #[test]
     fn dist_pair_comparisons(){
         let a = NodeDist(10u, 6.6);

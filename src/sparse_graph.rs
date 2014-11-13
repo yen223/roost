@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::vec::Vec;
-use roost::{Graph, Node, NodeIndex, EdgeIndex};
-use roost::graph_error::NodeNotFound;
+use graph::{Graph, Node, NodeIndex, EdgeIndex};
+use graph::graph_error::NodeNotFound;
 pub struct SparseGraph<V, E>
     where V: Clone,
           E: Clone,
@@ -117,7 +117,7 @@ impl<V, E> Graph<V, E> for SparseGraph<V, E>
             Ok(x)     => x,
             Err(_)    => return false,
         };
-        self.edges.find(&(fi, ti)).is_some()
+        self.edges.get(&(fi, ti)).is_some()
     }
 
     fn out_nodes(&self, idx: NodeIndex)->Vec<NodeIndex>{
@@ -191,23 +191,3 @@ fn graph_with_int_nodes(){
     assert!(!gp.contains_edge(&1, &4));
 }
 
-#[test]
-fn graph_with_struct_nodes(){
-    #[deriving(Eq, PartialEq, Clone)]
-    struct Point(int, int);
-    let point_a = Point( 1,3 );
-    let point_b = Point( 4,-1 );
-    let point_c = Point( 90,22 );
-    let point_d = Point( 3,3 );
-    let point_e = Point( 5,2 );
-    let mut graph:SparseGraph<Point, int> = SparseGraph::new();
-    graph.add_edge(point_a, point_b, 3);
-    graph.add_edge(point_a, point_c, 1);
-    graph.add_edge(point_b, point_c, 2);
-    graph.add_edge(point_c, point_d, 6);
-    assert!(graph.contains_node(&point_a));
-    assert!(graph.contains_node(&point_b));
-    assert!(graph.contains_node(&point_c));
-    assert!(graph.contains_node(&point_d));
-    assert!(!graph.contains_node(&point_e));
-}

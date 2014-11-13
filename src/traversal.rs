@@ -1,4 +1,4 @@
-use roost::{Graph, SparseGraph, Node, NodeIndex, EdgeIndex, node};
+use graph::{Graph, SparseGraph, Node, NodeIndex, EdgeIndex, node};
 use std::collections::{HashSet, DList};
 
 struct BreadthFirstVisit<'a, V, E, G>
@@ -100,8 +100,8 @@ impl <V:Clone+Eq, E:Clone> Traverseable<V,E> for SparseGraph<V,E>{}
 
 #[cfg(test)]
 mod test {
-    use roost::{Graph, SparseGraph, node};
-    use roost::traversal::Traverseable;
+    use graph::{Graph, SparseGraph, node};
+    use graph::traversal::Traverseable;
     #[test]
     fn breadth_first_search(){
         let mut gp:SparseGraph<int, int> = SparseGraph::new();

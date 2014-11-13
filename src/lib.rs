@@ -9,13 +9,12 @@ mod path;
 mod traversal;
 mod edge;
 
-mod roost{
-    pub use sparse_graph::SparseGraph;
+pub mod graph{
+    pub use sparse_graph::SparseGraph as SparseGraph;
     pub use graph_error;
     pub use edge;
     pub use path;
     pub use traversal;
-    
     
     pub type NodeIndex = uint;
     pub type EdgeIndex = (NodeIndex, NodeIndex);

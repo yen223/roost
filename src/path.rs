@@ -1,5 +1,5 @@
 use graph::{Graph, SparseGraph, NodeIndex, Node};
-use graph::graph_error::{GraphError, UnknownError};
+use graph::error::{GraphError, UnknownError};
 use graph::edge::DistanceEdge;
 use graph::traversal::Traverseable;
 use std::collections::{DList, BinaryHeap };

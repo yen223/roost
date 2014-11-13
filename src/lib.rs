@@ -11,14 +11,14 @@ mod edge;
 
 pub mod graph{
     pub use sparse_graph::SparseGraph as SparseGraph;
-    pub use graph_error;
+    pub use graph_error as error;
     pub use edge;
     pub use path;
     pub use traversal;
     
     pub type NodeIndex = uint;
     pub type EdgeIndex = (NodeIndex, NodeIndex);
-    pub type Node = Result<NodeIndex, graph_error::GraphError>; 
+    pub type Node = Result<NodeIndex, error::GraphError>; 
     pub type Edge = Option<EdgeIndex>;
 
     /// The base Graph trait. Provides basic operations to access, add, and 

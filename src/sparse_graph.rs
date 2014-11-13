@@ -43,7 +43,7 @@ impl<V, E> SparseGraph<V, E>
             }
         };
         self.edges.insert((fi, ti), edge);
-        self.adj_list.get_mut(fi).push(ti);
+        self.adj_list[fi].push(ti);
     }
 }
 

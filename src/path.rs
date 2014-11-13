@@ -2,7 +2,7 @@ use roost::{Graph, SparseGraph, NodeIndex, Node};
 use roost::graph_error::{GraphError, UnknownError};
 use roost::edge::DistanceEdge;
 use roost::traversal::Traverseable;
-use std::collections::{DList, Deque, PriorityQueue, };
+use std::collections::{DList, BinaryHeap };
 use std::iter::{Iterator};
 
 #[deriving(Clone)]
@@ -56,9 +56,9 @@ pub trait Path<N, V, E>: Traverseable<V, E>
         let node_len = self.nodes().len();
         let mut dist:Vec<f64> = Vec::from_elem(node_len, Float::infinity());
         let mut prev:Vec<Option<NodeIndex>> = Vec::from_elem(node_len, None);
-        let mut queue:PriorityQueue<NodeDist> = PriorityQueue::new();
+        let mut queue:BinaryHeap<NodeDist> = BinaryHeap::new();
         queue.push(NodeDist(src_idx, 0.0));
-        *dist.get_mut(src_idx) = 0.0;
+        dist[src_idx] = 0.0;
         loop {
             match queue.pop(){
                 Some(NodeDist(u, dist_u)) => {
@@ -70,8 +70,8 @@ pub trait Path<N, V, E>: Traverseable<V, E>
                                                 .unwrap();
                         let alt:f64 = dist_u + dist_edge;
                         if alt < dist[v]{
-                            *dist.get_mut(v) = dist_u + dist_edge;
-                            *prev.get_mut(v) = Some(u);
+                            dist[v] = dist_u + dist_edge;
+                            prev[v] = Some(u);
                         }
                         queue.push(NodeDist(v, dist[v])); 
                     }

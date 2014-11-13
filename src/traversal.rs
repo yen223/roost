@@ -1,5 +1,5 @@
 use roost::{Graph, SparseGraph, Node, NodeIndex, EdgeIndex, node};
-use std::collections::{HashSet, DList, Deque};
+use std::collections::{HashSet, DList};
 
 struct BreadthFirstVisit<'a, V, E, G>
     where V: Clone+Eq,

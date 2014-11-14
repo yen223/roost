@@ -29,7 +29,7 @@ pub trait Traverseable<V,E>:Graph<V,E>
             Ok(root_idx) => {
                 visit.insert(root_idx);
                 for &nb in self.out_nodes(root_idx).iter(){
-                    queue.push((root_idx, nb));
+                    queue.push_back((root_idx, nb));
                 }
             },
             Err(_)       => {}
@@ -61,7 +61,7 @@ impl<'a, N, E, G> Iterator<EdgeIndex> for BreadthFirstVisit<'a, N, E, G>
                 for n in out_nodes.into_iter(){
                     if !self.visited.contains(&n){
                         self.visited.insert(n);
-                        self.next_edges.push((node, n));
+                        self.next_edges.push_back((node, n));
                     }
                 }
             },

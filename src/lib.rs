@@ -3,14 +3,14 @@
 
 //! A graph library, written in pure Rust.
 
-mod sparse_graph;
+mod adjacency_list;
 mod graph_error;
 mod path;
 mod traversal;
 mod edge;
 
 pub mod graph{
-    pub use sparse_graph::SparseGraph as SparseGraph;
+    pub use adjacency_list::AdjList as AdjList;
     pub use graph_error as error;
     pub use edge;
     pub use path;

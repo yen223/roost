@@ -1,4 +1,4 @@
-use graph::{Graph, SparseGraph, Node, NodeIndex, EdgeIndex, node};
+use graph::{Graph, AdjList, Node, NodeIndex, EdgeIndex, node};
 use std::collections::{HashSet, DList};
 
 struct BreadthFirstVisit<'a, V, E, G>
@@ -96,15 +96,15 @@ impl<'a, N, E, G> Iterator<EdgeIndex> for DepthFirstVisit<'a, N, E, G>
     }
 }
 
-impl <V:Clone+Eq, E:Clone> Traverseable<V,E> for SparseGraph<V,E>{}
+impl <V:Clone+Eq, E:Clone> Traverseable<V,E> for AdjList<V,E>{}
 
 #[cfg(test)]
 mod test {
-    use graph::{Graph, SparseGraph, node};
+    use graph::{Graph, AdjList, node};
     use graph::traversal::Traverseable;
     #[test]
     fn breadth_first_search(){
-        let mut gp:SparseGraph<int, int> = SparseGraph::new();
+        let mut gp:AdjList<int, int> = AdjList::new();
         gp.add_edge(1i, 2i, 1);
         gp.add_edge(1i, 3i, 2);
         gp.add_edge(1i, 4i, 1);
@@ -127,7 +127,7 @@ mod test {
 
     #[test]
     fn depth_first_search(){
-        let mut gp:SparseGraph<int, int> = SparseGraph::new();
+        let mut gp:AdjList<int, int> = AdjList::new();
         gp.add_edge(1i, 2i, 1);
         gp.add_edge(1i, 3i, 2);
         gp.add_edge(2i, 3i, 4);

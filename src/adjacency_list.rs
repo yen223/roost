@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::vec::Vec;
 use graph::{Graph, Node, NodeIndex, EdgeIndex};
 use graph::error::NodeNotFound;
-pub struct SparseGraph<V, E>
+pub struct AdjList<V, E>
     where V: Clone,
           E: Clone,
 {
@@ -11,15 +11,15 @@ pub struct SparseGraph<V, E>
     adj_list: Vec<Vec<NodeIndex>>,
 }
 
-impl<V, E> SparseGraph<V, E>
+impl<V, E> AdjList<V, E>
     where V: Eq+Clone,
           E: Clone,
 {
-    pub fn new()->SparseGraph<V, E>{
+    pub fn new()->AdjList<V, E>{
         let n:Vec<V> = Vec::new();
         let e:HashMap<EdgeIndex, E> = HashMap::new();
         let adjl:Vec<Vec<NodeIndex>> = Vec::new();
-        SparseGraph{nodes: n, edges: e, adj_list: adjl}
+        AdjList{nodes: n, edges: e, adj_list: adjl}
     }
 
     fn add_node(&mut self, n: V){
@@ -47,12 +47,12 @@ impl<V, E> SparseGraph<V, E>
     }
 }
 
-impl<V, E> FromIterator<(V, V, E)> for SparseGraph<V, E>
+impl<V, E> FromIterator<(V, V, E)> for AdjList<V, E>
     where V: Eq+Clone,
           E: Clone,
 {
-    fn from_iter<T: Iterator<(V, V, E)>>(mut iterator: T) -> SparseGraph<V, E>{
-        let mut graph:SparseGraph<V, E> = SparseGraph::new();
+    fn from_iter<T: Iterator<(V, V, E)>>(mut iterator: T) -> AdjList<V, E>{
+        let mut graph:AdjList<V, E> = AdjList::new();
         for (from, to, edge) in iterator{
             graph.add_edge(from, to, edge);
         }
@@ -60,7 +60,7 @@ impl<V, E> FromIterator<(V, V, E)> for SparseGraph<V, E>
     }
 }
 
-impl<V, E> Graph<V, E> for SparseGraph<V, E> 
+impl<V, E> Graph<V, E> for AdjList<V, E> 
     where V: Eq+Clone,
           E: Clone,
 {
@@ -151,7 +151,7 @@ fn graph_with_str_nodes(){
         ("B", "C", Edge{weight: 1.3, cost: 5}),
         ("C", "D", Edge{weight: 1.4, cost: 5}),
         ];
-    let gp:SparseGraph<&str, Edge> = edges.into_iter().collect();
+    let gp:AdjList<&str, Edge> = edges.into_iter().collect();
     assert!(gp.contains_node(&"A"));
     assert!(gp.contains_node(&"B"));
     assert!(gp.contains_node(&"C"));
@@ -180,7 +180,7 @@ fn graph_with_int_nodes(){
         (2i, 3i, "Edge 3"),
         (3i, 4i, "Edge 4"),
     ];
-    let gp:SparseGraph<int, &str> = edges.into_iter().collect();
+    let gp:AdjList<int, &str> = edges.into_iter().collect();
     assert!(gp.contains_node(&1i));
     assert!(gp.contains_node(&2i));
     assert!(gp.contains_node(&3i));

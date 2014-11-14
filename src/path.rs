@@ -1,4 +1,4 @@
-use graph::{Graph, SparseGraph, NodeIndex, Node};
+use graph::{Graph, AdjList, NodeIndex, Node};
 use graph::error::{GraphError, UnknownError};
 use graph::edge::DistanceEdge;
 use graph::traversal::Traverseable;
@@ -102,11 +102,11 @@ pub trait Path<N, V, E>: Traverseable<V, E>
     }
 }
 
-impl <N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>> Path<N, V, E> for SparseGraph<V, E>{}
+impl <N:Num+ToPrimitive, V: Clone+Eq, E:DistanceEdge<N>> Path<N, V, E> for AdjList<V, E>{}
 
  #[cfg(test)]
 mod test{
-    use graph::{Graph, SparseGraph, node};
+    use graph::{Graph, AdjList, node};
     use graph::edge::{UnitEdge, DistanceEdge};
     use graph::path::{NodeDist, Path};
     #[test]
@@ -123,7 +123,7 @@ mod test{
 
     #[test]
     fn graph_has_path(){
-        let mut graph:SparseGraph<&str, UnitEdge> = SparseGraph::new();
+        let mut graph:AdjList<&str, UnitEdge> = AdjList::new();
         graph.add_edge("a", "b", UnitEdge);
         graph.add_edge("a", "c", UnitEdge);
         graph.add_edge("a", "f", UnitEdge);
@@ -155,7 +155,7 @@ mod test{
             }
         }
 
-        let mut gp:SparseGraph<&str, DistEdge> = SparseGraph::new();
+        let mut gp:AdjList<&str, DistEdge> = AdjList::new();
         gp.add_edge("a", "b", DistEdge{d: 7});
         gp.add_edge("a", "c", DistEdge{d: 9});
         gp.add_edge("a", "f", DistEdge{d: 14});

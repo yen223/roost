@@ -1,5 +1,5 @@
 extern crate roost;
-use roost::graph::SparseGraph;
+use roost::graph::AdjList;
 use roost::graph::Graph;
 
 #[test]
@@ -11,7 +11,7 @@ fn graph_with_struct_nodes(){
     let point_c = Point( 90,22 );
     let point_d = Point( 3,3 );
     let point_e = Point( 5,2 );
-    let mut graph:SparseGraph<Point, int> = SparseGraph::new();
+    let mut graph:AdjList<Point, int> = AdjList::new();
     graph.add_edge(point_a, point_b, 3);
     graph.add_edge(point_a, point_c, 1);
     graph.add_edge(point_b, point_c, 2);
